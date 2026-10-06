@@ -1,5 +1,5 @@
 // BRAWLMON — dados dos 65 brawlers + 18 tipos
-// Gerado para Gustavo 5ºA, João 5ºA e Enzo 5ºB
+// Gustavo 5ºA, João 5ºA, Enzo 5ºB e Joaquim 5ºA
 
 const TIPOS = {
   eletrico:  { nome: "Elétrico", cor: "#FFD21F" },

@@ -1,5 +1,5 @@
 // BRAWLMON 3D — HTML + CSS + JavaScript (Three.js)
-// Gustavo 5ºA, João 5ºA e Enzo 5ºB
+// Gustavo 5ºA, João 5ºA, Enzo 5ºB e Joaquim 5ºA
 (function () {
   "use strict";
   const $ = (id) => document.getElementById(id);
@@ -73,7 +73,9 @@
   $("btn-super").onclick = () => superJogador();
 
   // ---------- MOTOR 3D ----------
-  let scene, camera, renderer, clock, lutadores = [], projeteis = [], gemas = [], bola = null, gols = { azul: 0, vermelho: 0 }, encerrar = false, modoAtual = "sobrevivencia", tempoRestante = 120, gemasTime = { azul: 0, vermelho: 0 }, contagemGema = 0, nevoa = null;
+  let scene, camera, renderer, clock, lutadores = [], projeteis = [], gemas = [], bola = null, gols = { azul: 0, vermelho: 0 }, encerrar = false, modoAtual = "sobrevivencia", tempoRestante = 300, gemasTime = { azul: 0, vermelho: 0 }, contagemGema = 0, liderGema = null, tempoLiderGema = 20, nevoa = null;
+  const DURACAO_PARTIDA = 300; // 5 minutos por partida
+  const TEMPO_LIDER_GEMA = 20; // quem tiver mais gemas por 20s vence no Pique-Gema
   const teclas = {};
   window.addEventListener("keydown", (e) => { teclas[e.key.toLowerCase()] = true; if (e.key === " ") { e.preventDefault(); atacarJogador(); } if (e.key.toLowerCase() === "e") superJogador(); });
   window.addEventListener("keyup", (e) => { teclas[e.key.toLowerCase()] = false; });
@@ -159,29 +161,35 @@
     const sol = new THREE.DirectionalLight(0xffffff, 0.9); sol.position.set(10, 20, 10); sol.castShadow = true; scene.add(sol);
     clock = new THREE.Clock();
     const eu = BRAWLERS[save.selecionado];
-    gols = { azul: 0, vermelho: 0 }; tempoRestante = 120; gemasTime = { azul: 0, vermelho: 0 }; contagemGema = 0;
+    gols = { azul: 0, vermelho: 0 }; tempoRestante = DURACAO_PARTIDA; gemasTime = { azul: 0, vermelho: 0 }; contagemGema = 0; liderGema = null; tempoLiderGema = TEMPO_LIDER_GEMA;
 
     if (modo === "futebol") {
       arenaBase(0x2e8b57, 44);
       criarGol(-20, 0); criarGol(20, 0);
       bola = new THREE.Mesh(new THREE.SphereGeometry(0.6, 14, 12), new THREE.MeshStandardMaterial({ color: 0xffffff }));
       bola.position.set(0, 0.6, 0); bola.castShadow = true; scene.add(bola); bola.userData.vel = new THREE.Vector3();
+      // Futebol: 6 players (3x3)
       criarLutador(eu, "azul", -5, 0, true);
       criarLutador(BRAWLERS[(eu.id + 7) % 65], "azul", -8, 5, false);
+      criarLutador(BRAWLERS[(eu.id + 9) % 65], "azul", -8, -5, false);
       for (let i = 0; i < 3; i++) criarLutador(BRAWLERS[(eu.id + 13 + i * 5) % 65], "vermelho", 6 + i * 2, -6 + i * 6, false);
     } else if (modo === "gema") {
       arenaBase(0x5b2a86, 40);
       const mina = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 1, 12), new THREE.MeshStandardMaterial({ color: 0xAB47BC, emissive: 0x4A148C }));
       mina.position.set(0, 0.5, 0); scene.add(mina);
+      // Pique-Gema: 10 players (5x5)
       criarLutador(eu, "azul", -6, 0, true);
       criarLutador(BRAWLERS[(eu.id + 3) % 65], "azul", -8, 4, false);
       criarLutador(BRAWLERS[(eu.id + 11) % 65], "azul", -8, -4, false);
-      for (let i = 0; i < 3; i++) criarLutador(BRAWLERS[(eu.id + 21 + i * 7) % 65], "vermelho", 7, -6 + i * 6, false);
+      criarLutador(BRAWLERS[(eu.id + 15) % 65], "azul", -10, 0, false);
+      criarLutador(BRAWLERS[(eu.id + 17) % 65], "azul", -6, 6, false);
+      for (let i = 0; i < 5; i++) criarLutador(BRAWLERS[(eu.id + 21 + i * 7) % 65], "vermelho", 7, -8 + i * 4, false);
       for (let i = 0; i < 5; i++) soltarGema((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
     } else {
       arenaBase(0x3a3a5e, 44);
+      // Sobrevivência: 10 players (todos contra todos)
       criarLutador(eu, "solo", 0, -12, true);
-      const spots = [[12, 0], [-12, 0], [0, 12], [8, 8], [-8, 8]];
+      const spots = [[12, 0], [-12, 0], [0, 12], [8, 8], [-8, 8], [12, 12], [-12, 12], [12, -12], [-12, -12]];
       spots.forEach(([x, z], i) => criarLutador(BRAWLERS[(eu.id + 5 + i * 9) % 65], "solo", x, z, false));
       nevoa = new THREE.Mesh(new THREE.RingGeometry(18, 22, 40), new THREE.MeshBasicMaterial({ color: 0x9B30FF, transparent: true, opacity: 0.5, side: THREE.DoubleSide }));
       nevoa.rotation.x = -Math.PI / 2; nevoa.position.y = 0.1; scene.add(nevoa);
@@ -269,7 +277,7 @@
       alvo.hp = 0; alvo.vivo = false; alvo.mesh.visible = false;
       if (fonte && fonte.ehJogador) {
         save.stats.kills++;
-        if (modoAtual === "gema" && alvo.gemas > 0) { for (let i = 0; i < alvo.gemas; i++) soltarGema(alvo.mesh.position.x + Math.random() * 2, alvo.mesh.position.z + Math.random() * 2); alvo.gemas = 0; }
+        if (modoAtual === "gema" && alvo.gemas > 0) { for (let i = 0; i < alvo.gemas; i++) soltarGema(alvo.mesh.position.x + Math.random() * 2, alvo.mesh.position.z + Math.random() * 2); alvo.gemas = 0; atualizarPlacarGema(); }
       }
       if (alvo.ehJogador) fimDeJogo(false, "Você foi derrotado!");
       else checarVitoria();
@@ -287,9 +295,18 @@
       if (gols.azul >= 2) fimDeJogo(true, "⚽ Vitória no Futebol! " + gols.azul + " x " + gols.vermelho);
       else if (gols.vermelho >= 2) fimDeJogo(false, "Derrota no Futebol... " + gols.azul + " x " + gols.vermelho);
     } else if (modoAtual === "gema") {
-      if (gemasTime.azul >= 10 && contagemGema <= 0) contagemGema = 15;
-      if (gemasTime.vermelho >= 10) fimDeJogo(false, "O time rival segurou 10 gemas!");
+      // Pique-Gema: quem tiver mais gemas por 20 segundos ganha
+      atualizarPlacarGema();
+      if (liderGema === "azul" && tempoLiderGema <= 0) fimDeJogo(true, "💎 Seu time teve mais gemas por 20s!");
+      else if (liderGema === "vermelho" && tempoLiderGema <= 0) fimDeJogo(false, "O time rival teve mais gemas por 20s!");
     }
+  }
+
+  function atualizarPlacarGema() {
+    gemasTime.azul = lutadores.filter((l) => l.time === "azul" && l.vivo).reduce((s, l) => s + l.gemas, 0);
+    gemasTime.vermelho = lutadores.filter((l) => l.time === "vermelho" && l.vivo).reduce((s, l) => s + l.gemas, 0);
+    const novoLider = gemasTime.azul > gemasTime.vermelho ? "azul" : gemasTime.vermelho > gemasTime.azul ? "vermelho" : null;
+    if (novoLider !== liderGema) { liderGema = novoLider; tempoLiderGema = TEMPO_LIDER_GEMA; }
   }
 
   function fimDeJogo(venceu, texto) {
@@ -316,8 +333,9 @@
     $("hud-super").style.width = j.superCarga + "%";
     if (modoAtual === "futebol") $("hud-placar").textContent = "🔵 " + gols.azul + " x " + gols.vermelho + " 🔴";
     else if (modoAtual === "gema") {
-      let ga = 0; lutadores.forEach((l) => { if (l.time === "azul" && l.vivo) ga += l.gemas; });
-      $("hud-placar").textContent = "💎 Time: " + ga + "/10";
+      let ga = 0, gv = 0; lutadores.forEach((l) => { if (l.vivo && l.time === "azul") ga += l.gemas; else if (l.vivo && l.time === "vermelho") gv += l.gemas; });
+      if (liderGema) $("hud-placar").textContent = "💎 " + ga + " x " + gv + " 💎 líder: " + liderGema + " " + Math.ceil(tempoLiderGema) + "s";
+      else $("hud-placar").textContent = "💎 " + ga + " x " + gv + " (empate)";
     } else {
       const vivos = lutadores.filter((l) => l.vivo).length;
       $("hud-placar").textContent = "Vivos: " + vivos;
@@ -332,11 +350,11 @@
     const dt = Math.min(clock.getDelta(), 0.05);
     tempoRestante -= dt;
     if (tempoRestante <= 0) {
-      if (modoAtual === "futebol") fimDeJogo(gols.azul > gols.vermelho, "⏱️ Fim! " + gols.azul + " x " + gols.vermelho);
+      if (modoAtual === "futebol") fimDeJogo(gols.azul > gols.vermelho, "⏱️ Fim dos 5 minutos! " + gols.azul + " x " + gols.vermelho);
       else if (modoAtual === "sobrevivencia") {
         const vivos = lutadores.filter((l) => l.vivo);
-        fimDeJogo(vivos.length === 1 && vivos[0].ehJogador, "⏱️ Fim da sobrevivência!");
-      } else fimDeJogo(gemasTime.azul > gemasTime.vermelho, "⏱️ Fim do Pique-Gema!");
+        fimDeJogo(vivos.length === 1 && vivos[0].ehJogador, "⏱️ Fim dos 5 minutos da sobrevivência!");
+      } else { atualizarPlacarGema(); fimDeJogo(gemasTime.azul > gemasTime.vermelho, "⏱️ Fim dos 5 minutos do Pique-Gema! " + gemasTime.azul + " x " + gemasTime.vermelho); }
       return;
     }
     const j = jogador();
@@ -421,16 +439,19 @@
         if (pegou) {
           pegou.gemas++; save.stats.gemas += pegou.ehJogador ? 1 : 0;
           scene.remove(g); gemas.splice(i, 1);
-          gemasTime.azul = lutadores.filter((l) => l.time === "azul" && l.vivo).reduce((s, l) => s + l.gemas, 0);
-          gemasTime.vermelho = lutadores.filter((l) => l.time === "vermelho" && l.vivo).reduce((s, l) => s + l.gemas, 0);
-          if (gemasTime.azul >= 10 && contagemGema <= 0) contagemGema = 15;
+          atualizarPlacarGema();
           salvar(); atualizarHUD();
         }
       }
-      if (contagemGema > 0) {
-        contagemGema -= dt;
-        $("hud-placar").textContent = "💎 Segure! " + Math.ceil(contagemGema) + "s (" + gemasTime.azul + "/10)";
-        if (contagemGema <= 0) fimDeJogo(true, "💎 Vitória no Pique-Gema!");
+      // conta 20s de liderança: quem tiver mais gemas por 20s ganha
+      if (liderGema) {
+        tempoLiderGema -= dt;
+        $("hud-placar").textContent = "💎 " + gemasTime.azul + " x " + gemasTime.vermelho + " 💎 líder: " + liderGema + " " + Math.ceil(Math.max(0, tempoLiderGema)) + "s";
+        if (tempoLiderGema <= 0) {
+          if (liderGema === "azul") fimDeJogo(true, "💎 Seu time teve mais gemas por 20s!");
+          else fimDeJogo(false, "O time rival teve mais gemas por 20s!");
+          return;
+        }
       }
       // barras de vida 3D + câmera
     }
