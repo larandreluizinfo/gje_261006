@@ -1,0 +1,46 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Arial, sans-serif; }
+body { background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); min-height: 100vh; color: #fff; }
+.tela { display: none; min-height: 90vh; padding: 20px; flex-direction: column; align-items: center; }
+.tela.ativa { display: flex; }
+.logo { font-size: 4rem; letter-spacing: 4px; color: #FFD21F; text-shadow: 3px 3px 0 #E3350D, 6px 6px 0 #000; animation: pulo 1.2s infinite alternate; }
+@keyframes pulo { from { transform: scale(1); } to { transform: scale(1.05); } }
+.sub { background: #0008; padding: 8px 16px; border-radius: 20px; margin: 10px 0; }
+.autores { margin: 8px 0 20px; font-weight: bold; background: #fff; color: #333; padding: 6px 14px; border-radius: 12px; }
+.btn-grande { font-size: 2rem; padding: 16px 60px; border: none; border-radius: 16px; cursor: pointer; background: linear-gradient(180deg, #37D67A, #1B8A4B); color: #fff; box-shadow: 0 6px 0 #0d5a2e; }
+.btn-grande:active { transform: translateY(4px); box-shadow: none; }
+.info-inicial { margin-top: 20px; background: #000a; padding: 14px 20px; border-radius: 12px; text-align: center; line-height: 1.8; }
+.topo { width: 100%; max-width: 1100px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.btn-peq { background: #222c; color: #fff; border: 1px solid #fff5; border-radius: 10px; padding: 8px 14px; cursor: pointer; }
+.btn-peq:hover, .btn-modo:hover { filter: brightness(1.2); }
+#modo-botoes { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 8px; }
+.btn-modo { font-size: 1.1rem; padding: 12px 22px; border: none; border-radius: 14px; cursor: pointer; font-weight: bold; color: #fff; }
+.btn-modo[data-modo="futebol"] { background: linear-gradient(180deg, #1E9CFF, #0B5FA5); }
+.btn-modo[data-modo="sobrevivencia"] { background: linear-gradient(180deg, #E53935, #7B1FA2); }
+.btn-modo[data-modo="gema"] { background: linear-gradient(180deg, #AB47BC, #4A148C); }
+.dica { background: #0007; padding: 6px 12px; border-radius: 10px; margin: 8px 0; text-align: center; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; width: 100%; max-width: 1100px; }
+.card { border-radius: 14px; padding: 10px; text-align: center; color: #fff; border: 3px solid transparent; cursor: pointer; background: #222; }
+.card.selecionado { border-color: #FFD21F; transform: scale(1.03); }
+.card.bloqueado { filter: grayscale(1) brightness(.6); cursor: not-allowed; }
+.card .emoji { font-size: 2rem; }
+.card .tipo { display: inline-block; padding: 2px 10px; border-radius: 10px; background: #0008; font-size: .8rem; margin: 4px 0; }
+.card .vida { font-size: .8rem; }
+.missoes { width: 100%; max-width: 1100px; display: grid; gap: 8px; margin-bottom: 30px; }
+.missao { background: #000a; border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; }
+.missao.pronta { border: 2px solid #37D67A; }
+#hud { width: 100%; max-width: 1100px; display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #000a; padding: 8px 12px; border-radius: 12px; }
+.barra { width: 220px; height: 14px; background: #333; border-radius: 8px; overflow: hidden; margin-top: 4px; }
+.barra.super { height: 10px; }
+#hud-vida { height: 100%; width: 100%; background: linear-gradient(90deg, #37D67A, #B2FF59); }
+#hud-super { height: 100%; width: 0%; background: linear-gradient(90deg, #FFD21F, #FF6F00); }
+#hud-placar { font-size: 1.4rem; font-weight: bold; }
+#game3d { width: 100%; max-width: 1100px; height: 60vh; border-radius: 14px; overflow: hidden; margin-top: 10px; border: 3px solid #fff3; }
+#game3d canvas { width: 100% !important; height: 100% !important; display: block; }
+#mensagem { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #000b; font-size: 2rem; z-index: 10; text-align: center; padding: 20px; }
+#mensagem.escondido { display: none; }
+#controles-touch { margin-top: 10px; display: flex; gap: 16px; align-items: center; }
+.joy { width: 90px; height: 90px; border-radius: 50%; background: #fff2; border: 2px solid #fff5; position: relative; touch-action: none; }
+.joy-miolo { width: 40px; height: 40px; border-radius: 50%; background: #FFD21F; position: absolute; left: 25px; top: 25px; }
+footer { text-align: center; padding: 12px; background: #000a; }
+footer a { color: #FFD21F; }
+@media (max-width: 600px) { .logo { font-size: 2.6rem; } .barra { width: 130px; } }

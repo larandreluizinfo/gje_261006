@@ -1,13 +1,71 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>gje_261006</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BRAWLMON — Jogo 3D</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+  <script src="brawlers.js" defer></script>
+  <script src="game.js" defer></script>
 </head>
 <body>
-    <h1>Projeto gje_261006</h1>
-    <p>Site em construção.</p>
-    <p>Criado por Gustavo 5ºA, João 5ºA e Enzo 5ºB.</p>
+  <!-- TELA INICIAL -->
+  <section id="tela-inicial" class="tela ativa">
+    <div class="logo-area">
+      <h1 class="logo">BRAWLMON</h1>
+      <p class="sub">65 brawlers • 3 modos • 3D • Poderes especiais</p>
+      <p class="autores">Criado por Gustavo 5ºA, João 5ºA e Enzo 5ºB</p>
+    </div>
+    <button id="btn-jogar" class="btn-grande">▶ JOGAR</button>
+    <div class="info-inicial">
+      <p>🏈 Futebol • 💀 Sobrevivência • 💎 Pique-Gema</p>
+      <p>⌨️ WASD / setas movem • Espaço ataca • E poder especial</p>
+      <p id="resumo-save">Você começa com 1 brawler. Complete missões para desbloquear os 65!</p>
+    </div>
+  </section>
+
+  <!-- TELA ESCOLHA -->
+  <section id="tela-escolha" class="tela">
+    <header class="topo">
+      <button id="btn-voltar-inicio" class="btn-peq">← Início</button>
+      <h2>Escolha seu Brawler</h2>
+      <div id="trofeus">🏆 0</div>
+    </header>
+    <div id="modo-botoes">
+      <button class="btn-modo" data-modo="futebol">🏈 Futebol</button>
+      <button class="btn-modo" data-modo="sobrevivencia">💀 Sobrevivência</button>
+      <button class="btn-modo" data-modo="gema">💎 Pique-Gema</button>
+    </div>
+    <p class="dica">Desbloqueie um brawler novo a cada 5 🏆. Vença partidas e complete missões!</p>
+    <div id="lista-brawlers" class="grid"></div>
+    <h3>📜 Missões</h3>
+    <div id="lista-missoes" class="missoes"></div>
+  </section>
+
+  <!-- TELA JOGO -->
+  <section id="tela-jogo" class="tela">
+    <div id="hud">
+      <div class="hud-left">
+        <span id="hud-nome">Volt</span>
+        <div class="barra"><div id="hud-vida"></div></div>
+        <div class="barra super"><div id="hud-super"></div></div>
+      </div>
+      <div class="hud-center"><span id="hud-placar">0 x 0</span><span id="hud-tempo"></span></div>
+      <div class="hud-right">
+        <button id="btn-atacar" class="btn-peq">🔥 Atacar</button>
+        <button id="btn-super" class="btn-peq">⚡ Super</button>
+        <button id="btn-sair" class="btn-peq">Sair</button>
+      </div>
+    </div>
+    <div id="game3d"></div>
+    <div id="mensagem" class="escondido"></div>
+    <div id="controles-touch">
+      <div class="joy" id="joy"><div class="joy-miolo"></div></div>
+      <p class="dica">No celular: arraste o círculo para mover • use os botões Atacar / Super</p>
+    </div>
+  </section>
+
+  <footer>Criado por Gustavo 5ºA, João 5ºA e Enzo 5ºB • <a href="https://larandreluizinfo.github.io/gje_261006/">Jogar online</a></footer>
 </body>
 </html>
